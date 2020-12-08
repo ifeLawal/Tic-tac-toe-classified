@@ -1,0 +1,8 @@
+.game-space {
+    margin: 0px;
+    height: 65vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -1,0 +1,5 @@
+$mainBlue: #38546F;
+$mainOrange: #CB9851;
+$boardSize: 470px;
+$cellSize: 50px;
+$markSize: calc($cellSize * .9);

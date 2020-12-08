@@ -1,0 +1,65 @@
+@define-mixin atTablet {
+    @media (min-width: 768px) {
+        @mixin-content;
+    }
+};
+
+@define-mixin atDesktop {
+    @media (min-width: 1020px) {
+        @mixin-content;
+    }
+}
+
+@define-mixin atLgDesktop {
+    @media (min-width: 1440px) {
+        @mixin-content;
+    }
+}
+
+@define-mixin clearfix {
+    &::after {
+        content: "";
+        clear: both;
+        display: table;
+    }
+}
+    
+@define-mixin buttonShine {
+    position: relative;
+    overflow: hidden;
+
+    /* psuedo-element shine animation left side */
+    &::before {
+        content: '';
+        display: block;
+        position: absolute;
+        background: rgba(255, 255, 255, 0.5);
+        width: 60px;
+        height: 100%;
+        top: 0;
+        filter: blur(30px);
+        transform: translateX(-300%) skewX(-15deg);
+    }
+
+    /* psuedo-element shine animation right side */
+    &::after {
+        content: '';
+        display: block;
+        position: absolute;
+        background: rgba(255, 255, 255, 0.2);
+        width: 30px;
+        height: 100%;
+        top: 0;
+        filter: blur(5px);
+        transform: translateX(-300%) skewX(-15deg);
+    }
+
+    &:hover {
+        /* psuedo-elements for right- and left-side shine animations */
+        &::before,
+        &::after {
+        transform: translateX(300px) skewX(-15deg);
+        transition: 1.1s;
+        }
+    }
+}

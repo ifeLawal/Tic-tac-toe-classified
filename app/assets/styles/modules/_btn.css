@@ -1,0 +1,22 @@
+.btn {
+    background-color: $mainBlue;
+    color: #FFF;
+    text-decoration: none;
+    padding: .625rem 1.2rem;
+    border-radius: .31rem;
+    display: inline-block;
+
+    @mixin buttonShine{};
+
+    &--orange{
+        background-color: $mainOrange;
+    }
+
+    &--large {
+        padding: 1.1rem 1.9rem;
+
+        @mixin atTablet {
+            font-size: 1.25rem;
+        }
+    }
+}

@@ -1,0 +1,37 @@
+.section-title {
+    font-size: 2.55rem;
+    font-weight: 200;
+    text-align: center;
+
+    @mixin atTablet {
+        font-size: 3.75rem;
+    }
+
+    strong {
+        font-weight: 500;
+    }
+
+    &__icon {
+        margin: 0 auto;
+        display: block;
+        padding-bottom: .3em;
+        width: 3.4rem;
+
+        @mixin atTablet {
+            margin-right: .5rem;
+            padding-bottom: 0;
+            display: inline-block;
+            position: relative;
+            top: 4px;
+        }
+    }
+
+    &--blue {
+        color: $mainBlue;
+    }
+
+    &--less-margin {
+        margin-bottom: 1.3rem;
+        margin-top: 0;
+    }
+}

@@ -1,0 +1,153 @@
+.tictactoe-board {
+    height: $boardSize;
+    width: $boardSize;
+    margin: auto auto;
+    display: grid;
+    grid-template-columns: repeat(3, 153px);
+    grid-template-rows: repeat(3, 153px);
+
+    &__cluster {
+        border: 1px solid grey;
+        width: 100%;
+        height: 100%;
+        display: grid;
+        justify-content: center;
+        align-content: center;
+        justify-items: center;
+        align-items: center;
+        grid-template-columns: repeat(3, auto);
+
+        &--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before,
+        &--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before,
+        &--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after {
+            background-color: lightgrey;
+        }
+
+        &--is-active .tictactoe-board__cell {
+            border: 1px solid black;
+        }
+    }
+
+    &__cell {
+        height: $cellSize;
+        width: $cellSize;
+        border: 1px solid lightgrey ;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        cursor: pointer;
+        background-color: white;
+
+        &--red {
+            background-color: red;
+        }
+
+        &--blue {
+            background-color: blue;
+        }
+
+        &:first-child,
+        &:nth-child(2),
+        &:nth-child(3){
+            border-top: none;
+        }
+
+        &:nth-child(3n + 1) {
+            border-left: none;
+        }
+
+        &:nth-child(3n) {
+            border-right: none;
+        }
+
+        &:last-child,
+        &:nth-child(7),
+        &:nth-child(8) {
+            border-bottom: none;
+        }
+
+        &--x,
+        &--circle {
+            cursor: not-allowed;
+        }
+
+        &--x::before,
+        &--x::after,
+        &--circle::before {
+            background-color: black;
+        }
+
+        &--x::before,
+        &--x::after {
+            content: '';
+            position: absolute;
+            width: calc(($markSize) * .15);
+            height: $markSize;
+        }
+
+        &--x::before {
+            transform: rotate(45deg);
+        }
+
+        &--x::after {
+            transform: rotate(-45deg);
+        }
+
+        &--circle::before,
+        &--circle::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        &--circle::before {
+            height: calc($markSize *.85);
+            width: calc($markSize *.85);
+        }
+
+        &--circle::after {
+            height: calc($markSize *.55);
+            width: calc($markSize *.55);
+            background-color: white;
+        }
+    }
+}
+
+/* X mark hover styling */
+
+.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before, 
+.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after {
+    content: '';
+    position: absolute;
+    width: calc(($markSize) * .15);
+    height: $markSize;
+}
+
+.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before {
+    transform: rotate(45deg);
+}
+
+.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after {
+    transform: rotate(-45deg);
+}
+
+/*  Circle mark hover styling */
+
+.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before,
+.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+}
+
+.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after {
+    height: calc($markSize *.55);
+    width: calc($markSize *.55);
+    background-color: white;
+}
+
+.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before {
+    height: calc($markSize *.85);
+    width: calc($markSize *.85);
+}
