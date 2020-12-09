@@ -42,10 +42,6 @@ app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, '../app', INDEX));
 })
 
-// app.get('/about', (req, res) => {
-
-// })
-
 const server = app.listen(PORT, () => {
     console.log('Server started on port:' + PORT);
 });

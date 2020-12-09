@@ -1,12 +1,12 @@
 {
-  "name": "travel-site",
+  "name": "tic tac toe classified",
   "version": "1.0.0",
   "scripts": {
     "dev": "npm-run-all -p backend build",
     "backend": "npx nodemon server.js --ignore './app/' --ignore './public' --ignore './cloud-functions/'",
     "build": "webpack",
     "start:client": "webpack-dev-server --config webpack.config.js",
-    "start": "babel-watch ./src_server/server.js",
+    "start": "babel-watch ./src_server/dev-server.js",
     "webpack-dev": "webpack serve",
     "dev-server": "npx nodemon server",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,6 +14,7 @@
   "dependencies": {
     "axios": "^0.21.0",
     "core-js": "^2.6.12",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "lazysizes": "^5.2.2",
     "lodash": "^4.17.20",
