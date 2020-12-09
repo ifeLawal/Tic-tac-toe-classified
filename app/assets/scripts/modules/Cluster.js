@@ -1,6 +1,7 @@
 import Cell from "./Cell";
 import EventEmitter from "events";
 
+let socket = io();
 const LENGTH_OF_MEGA_TIC_TAC_TOE_BOARD = 9;
 const LENGTH_OF_TIC_TAC_TOE_BOARD = 3;
 
@@ -39,7 +40,13 @@ class Cluster extends EventEmitter {
 
   setupBoardInteraction() {
     this.cells.map((cell, index) => {
+
       cell.on("boardClicked", () => {
+
+        window.socket.emit("boardClicked", {
+          index: index
+        });
+
         this.fillBoard(index);
         let horizontalMatch = this.checkHorizontalMatches();
         let verticalMatch = this.checkVerticalMatches();
@@ -63,6 +70,11 @@ class Cluster extends EventEmitter {
           });
         }
       });
+    });
+
+    // socket catch socket.on()
+    window.socket.on('boardClicked', (data) => {
+      console.log(this.cells[data.index].fillCell());
     });
   }
 

@@ -19,4 +19,8 @@
             font-size: 1.25rem;
         }
     }
+
+    &--margin-small {
+        margin: .625rem;
+    }
 }

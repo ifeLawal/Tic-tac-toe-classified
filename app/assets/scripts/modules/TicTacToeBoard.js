@@ -49,9 +49,8 @@ class TicTacToeBoard extends EventEmitter {
     });
 
     this.clusterBoard.on("gameFinished", () => {
-      console.log("emitted");
+      
       this.emit("boardGameFinished");
-      console.log("post emission");
     })
   }
 

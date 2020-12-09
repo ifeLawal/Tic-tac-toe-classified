@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "npm-run-all -p backend build",
-    "webpack-dev": "webpack serve",
     "backend": "npx nodemon server.js --ignore './app/' --ignore './public' --ignore './cloud-functions/'",
+    "build": "webpack",
     "start:client": "webpack-dev-server --config webpack.config.js",
     "start": "babel-watch ./src_server/server.js",
-    "build": "webpack",
+    "webpack-dev": "webpack serve",
     "dev-server": "npx nodemon server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

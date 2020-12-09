@@ -11,15 +11,15 @@ class GameState extends EventEmitter {
     this.interface = "";
 
     this.currentTicTacToeGame;
-    this.events();
   }
 
-  injectHTML() {}
-
-  events() {
+  initializeGame() {
     this.currentTicTacToeGame = new TicTacToeBoard();
     this.modal.classList.add("modal--is-visible");
-    this.start.addEventListener("click", (e) => this.startGame(e));
+    this.start.addEventListener("click", (e) => {
+      this.startGame(e);
+      // window.socket.emit()
+    });
   }
 
   startGame(e) {

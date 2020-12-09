@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-
+let socket = io();
 class Cell extends EventEmitter {
     constructor(marker) {
         super();
@@ -13,18 +13,22 @@ class Cell extends EventEmitter {
             // check marker type
             // if x place x, if circle place circle
             console.log(this.marker);
-            if(this.cell.classList.contains("tictactoe-board__cell--circle") || this.cell.classList.contains("tictactoe-board__cell--x")) {
-                // invalid move
-                console.log("invalid move");
-            } else {
-                if(this.marker == 'o') {
-                    this.cell.classList.add("tictactoe-board__cell--circle");
-                } else {
-                    this.cell.classList.add("tictactoe-board__cell--x");
-                }
-                this.emit('boardClicked');
-            }
+            this.fillCell();
+            this.emit('boardClicked');
         })
+    }
+
+    fillCell() {
+        if(this.cell.classList.contains("tictactoe-board__cell--circle") || this.cell.classList.contains("tictactoe-board__cell--x")) {
+            // invalid move
+            console.log("invalid move");
+        } else {
+            if(this.marker == 'o') {
+                this.cell.classList.add("tictactoe-board__cell--circle");
+            } else {
+                this.cell.classList.add("tictactoe-board__cell--x");
+            }
+        }
     }
 
     createCell() {
