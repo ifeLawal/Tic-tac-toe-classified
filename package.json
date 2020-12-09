@@ -1,5 +1,5 @@
 {
-  "name": "tic tac toe classified",
+  "name": "tic-tac-toe-classified",
   "version": "1.0.0",
   "scripts": {
     "dev": "npm-run-all -p backend build",
