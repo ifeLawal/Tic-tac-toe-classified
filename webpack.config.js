@@ -17,13 +17,6 @@ const postCSSPlugins = [
 
 let rootFolder = 'public';
 
-class RunAfterCompile {
-    apply(compiler) {
-        compiler.hooks.done.tap('Copy images', () => {
-            fse.copySync('./app/assets/images', `./${rootFolder}/assets/images`)
-        })
-    }
-}
 
 let cssConfig = {
     test: /\.css$/i,
@@ -109,8 +102,7 @@ if (currentTask == 'build') {
     }
     config.plugins.push(
         new CleanWebpackPlugin(), 
-        new MiniCssExtractPlugin({filename: 'styles.[chunkhash].css'}),
-        new RunAfterCompile());
+        new MiniCssExtractPlugin({filename: 'styles.[chunkhash].css'}))
 }
 
 module.exports = config;
