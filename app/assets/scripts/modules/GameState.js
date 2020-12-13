@@ -1,13 +1,13 @@
 import 'babel-polyfill';
-import EventEmitter from "events";
-import TicTacToeBoard from "./TicTacToeBoard";
+import TicTacToeBoard from "./LocalTicTacToeBoard";
+import OnlineTicTacToeBoard from "./OnlineTicTacToeBoard";
 
-class GameState extends EventEmitter {
+class GameState {
+  // you might need sockets here???
   constructor() {
-    super();
     this.modal = document.querySelector(".modal");
     this.start = document.querySelector("#start");
-    this.winningMessage = document.querySelector('.modal__winner-text');
+    this.winningMessage = document.querySelector(".modal__winner-text");
     this.interface = "";
 
     this.currentTicTacToeGame;
@@ -15,18 +15,21 @@ class GameState extends EventEmitter {
 
   initializeGame() {
     this.currentTicTacToeGame = new TicTacToeBoard();
-    this.modal.classList.add("modal--is-visible");
+    // sockets will have to activate this on the other game state
     this.start.addEventListener("click", (e) => {
-      this.startGame(e);
+      e.preventDefault();
+      this.startGame();
       // window.socket.emit()
     });
+    this.modal.classList.add("modal--is-visible");
+
   }
 
-  startGame(e) {
-    e.preventDefault();
+  startGame() {
     this.modal.classList.remove("modal--is-visible");
+    // TODO create cleaner way of showing board that doesn't involve destroying a board
     this.currentTicTacToeGame.destroyBoard();
-    // this.start.removeEventListener("click", this.startGame);
+
     this.currentTicTacToeGame = new TicTacToeBoard();
     this.checkGameState();
   }
@@ -35,17 +38,14 @@ class GameState extends EventEmitter {
     // bring back the interface button
     await this.sleep(300);
     this.start.innerHTML = "Play Again";
-    this.winningMessage.classList.add('modal__winner-text--is-visible');
+    this.winningMessage.classList.add("modal__winner-text--is-visible");
     this.winningMessage.innerHTML = `The winner is ${this.currentTicTacToeGame.getWinner()}`;
     this.currentTicTacToeGame.destroyBoard();
     this.events();
   }
 
-   checkGameState() {
-    this.currentTicTacToeGame.on("boardGameFinished", () => {
-      this.restartGame();
-    });
-  }
+  // each game has a different way of evaluating this
+  checkGameState() {}
 
   // a sleep function to simulate a delay in time
   sleep(ms) {

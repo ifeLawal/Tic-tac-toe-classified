@@ -1,15 +1,15 @@
-import Cell from "./Cell";
+import OnlineCell from "./OnlineCell";
 import EventEmitter from "events";
 
-let socket = io();
 const LENGTH_OF_MEGA_TIC_TAC_TOE_BOARD = 9;
 const LENGTH_OF_TIC_TAC_TOE_BOARD = 3;
 
-class Cluster extends EventEmitter {
-  constructor(currentPlayer) {
+class OnlineCluster extends EventEmitter {
+  constructor(mark, currentPlayer) {
     super();
     this.cells = [];
     // TODO configure this to interplay with the right person
+    this.mark = mark;
     this.currentPlayer = currentPlayer;
     this.winner;
     this.boardArray = [
@@ -31,7 +31,7 @@ class Cluster extends EventEmitter {
     div.classList.add("tictactoe-board__cluster");
     div.setAttribute("data-cluster", "");
     for (let i = 0; i < 9; i++) {
-      let newCell = new Cell(this.currentPlayer);
+      let newCell = new OnlineCell(this.mark, this.currentPlayer);
       div.appendChild(newCell.getCell());
       this.cells.push(newCell);
     }
@@ -41,44 +41,55 @@ class Cluster extends EventEmitter {
 
   setupBoardInteraction() {
     this.cells.map((cell, index) => {
-
       cell.on("boardClicked", () => {
-
         window.socket.emit("boardClicked", {
-          index: index
+          index: index,
+          mark: cell.getMark()
         });
-
-        this.fillBoard(index);
-        let horizontalMatch = this.checkHorizontalMatches();
-        let verticalMatch = this.checkVerticalMatches();
-        let diagonalMatch = this.checkDiagonalMatches();
-        // console.log(`Horizontal matches: ${horizontalMatch}}`);
-        // console.log(`Vertical matches: ${verticalMatch}`);
-        // console.log(`Diagonal matches: ${diagonalMatch}`);
-        this.colorMatch();
-        if (horizontalMatch || verticalMatch || diagonalMatch) {
-          console.log(`emitting the winner ${this.winner}`);
-          this.emit("gameFinished");
-        } else {
-          this.emit("clusterboardClicked");
-
-          this.cells.forEach((cell) => {
-            if (this.currentPlayer == "x") {
-              cell.setMarker("x");
-            } else {
-              cell.setMarker("o");
-            }
-          });
-        }
       });
     });
 
+    window.socket.on("moveMade", (data) => {
+      console.log(window.socket.id, this.mark);
+      let [boardRow, boardCol] = this.convertIndexToBoardLocation(data.index);
+      this.boardArray[boardRow][boardCol] = data.mark;
+      console.log(this.boardArray);
+      this.cells[data.index].fillCell();
+      let horizontalMatch = this.checkHorizontalMatches();
+      let verticalMatch = this.checkVerticalMatches();
+      let diagonalMatch = this.checkDiagonalMatches();
+      // console.log(`Horizontal matches: ${horizontalMatch}}`);
+      // console.log(`Vertical matches: ${verticalMatch}`);
+      // console.log(`Diagonal matches: ${diagonalMatch}`);
+      this.colorMatch();
+      if (horizontalMatch || verticalMatch || diagonalMatch) {
+        console.log(`emitting the winner ${this.winner}`);
+        this.emit("gameFinished");
+      } else {
+        this.emit("clusterboardClicked");
+
+        //   /*
+        //     this.cells.forEach((cell) => {
+        //       if (this.currentPlayer == "x") {
+        //         cell.setMarker("x");
+        //       } else {
+        //         cell.setMarker("o");
+        //       }
+        //     });
+        //     */
+      }
+    });
+
     // socket catch socket.on()
-    window.socket.on('boardClicked', (data) => {
-      console.log(this.cells[data.index].fillCell());
+    window.socket.on("turnChange", (data) => {
+      console.log({ data });
+      this.cells.forEach((cell) => {
+        cell.setCurrentPlayer(data.mark, data.socketId,);
+      });
     });
   }
 
+  // this will be tough
   setBoardPlayer(player) {
     if (player == "x") {
       this.clusterBoard.classList.remove(
@@ -95,10 +106,6 @@ class Cluster extends EventEmitter {
     }
   }
 
-  setCurrentPlayer(player) {
-    this.currentPlayer = player;
-  }
-
   getClusterBoard() {
     return this.clusterBoard;
   }
@@ -107,7 +114,7 @@ class Cluster extends EventEmitter {
     let matches = this.matches;
     // console.log({ matches });
     for (let marker in matches) {
-    //   console.log(marker);
+      //   console.log(marker);
       let matchesArr = matches[marker];
       for (let i = 0; i < matchesArr.length; i++) {
         for (let j = 0; j < matchesArr[i].length; j++) {
@@ -257,6 +264,7 @@ class Cluster extends EventEmitter {
   convertIndexToBoardLocation(val) {
     let boardx = 0;
     let boardy = 0;
+    console.log(val);
 
     if (val % (LENGTH_OF_TIC_TAC_TOE_BOARD - 1) == 0) {
       boardx = Math.floor(val / LENGTH_OF_TIC_TAC_TOE_BOARD);
@@ -283,9 +291,9 @@ class Cluster extends EventEmitter {
     return cellIndex;
   }
 
-  fillBoard(cellIndex) {
+  fillBoard(cellIndex, mark, board) {
     let [boardRow, boardCol] = this.convertIndexToBoardLocation(cellIndex);
-    this.boardArray[boardRow][boardCol] = this.currentPlayer;
+    board[boardRow][boardCol] = mark;
     // console.log(this.boardArray);
   }
 
@@ -294,4 +302,4 @@ class Cluster extends EventEmitter {
   }
 }
 
-export default Cluster;
+export default OnlineCluster;

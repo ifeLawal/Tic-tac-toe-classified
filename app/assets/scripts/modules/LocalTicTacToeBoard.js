@@ -1,15 +1,17 @@
 import Cluster from "./Cluster";
 import EventEmitter from "events";
 
-class TicTacToeBoard extends EventEmitter {
+class LocalTicTacToeBoard extends EventEmitter {
   constructor() {
     super();
     this.board = document.querySelector(".tictactoe-board");
 
-    this.currentPlayer = 'x';
+    this.boardArray = [];
+    this.currentPlayer = "x";
     this.clusterBoard = new Cluster(this.currentPlayer);
 
     this.injectHTML();
+    this.runGame();
   }
 
   injectHTML() {
@@ -63,4 +65,4 @@ class TicTacToeBoard extends EventEmitter {
   }
 }
 
-export default TicTacToeBoard;
+export default LocalTicTacToeBoard;

@@ -4,6 +4,7 @@ class Navigation {
     constructor(navName, placement) {
         this.name = navName;
         this.placement = placement;
+        // this.emit = emit;
         this.injectHTML();
     }
 
@@ -14,6 +15,7 @@ class Navigation {
         let siteLink = encodeURIComponent(this.name);
         button.setAttribute('href', `/${siteLink}`);
         this.placement.insertAdjacentElement('beforeend', button);
+        // button.addEventListener('click', this.emit);
     }
     
 }

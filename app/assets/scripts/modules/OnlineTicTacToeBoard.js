@@ -1,15 +1,18 @@
-import Cluster from "./Cluster";
+import OnlineCluster from "./OnlineCluster";
 import EventEmitter from "events";
+import TicTacToeBoard from "./TicTacToeBoard";
 
-class TicTacToeBoard extends EventEmitter {
-  constructor() {
-    super();
+class OnlineTicTacToeBoard {
+  constructor(mark, currentPlayer) {
+    // super();
     this.board = document.querySelector(".tictactoe-board");
 
-    this.currentPlayer = 'x';
-    this.clusterBoard = new Cluster(this.currentPlayer);
+    this.boardArray = [];
+
+    this.clusterBoard = new OnlineCluster(mark, currentPlayer);
 
     this.injectHTML();
+    this.runGame();
   }
 
   injectHTML() {
@@ -22,11 +25,7 @@ class TicTacToeBoard extends EventEmitter {
 
   // swap turns
   swapTurns() {
-    if (this.currentPlayer == "x") {
-      this.currentPlayer = "o";
-    } else {
-      this.currentPlayer = "x";
-    }
+
   }
 
   // check matches
@@ -38,7 +37,7 @@ class TicTacToeBoard extends EventEmitter {
     this.clusterBoard.on("clusterboardClicked", () => {
 
       this.swapTurns();
-      this.clusterBoard.setCurrentPlayer(this.currentPlayer);
+      // this.clusterBoard.setCurrentPlayer(this.currentPlayer);
       this.clusterBoard.setBoardPlayer(this.currentPlayer);
       // console.log(
       //   "swapped turns",
@@ -63,4 +62,4 @@ class TicTacToeBoard extends EventEmitter {
   }
 }
 
-export default TicTacToeBoard;
+export default OnlineTicTacToeBoard;
