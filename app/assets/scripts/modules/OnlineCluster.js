@@ -22,7 +22,7 @@ class OnlineCluster extends EventEmitter {
       o: [],
     };
     this.clusterBoard = this.createBoard();
-    this.setBoardPlayer(currentPlayer);
+    this.setBoardPlayer(this.mark);
     this.setupBoardInteraction();
   }
 
@@ -54,6 +54,7 @@ class OnlineCluster extends EventEmitter {
       let [boardRow, boardCol] = this.convertIndexToBoardLocation(data.index);
       this.boardArray[boardRow][boardCol] = data.mark;
       console.log(this.boardArray);
+
       this.cells[data.index].fillCell();
       let horizontalMatch = this.checkHorizontalMatches();
       let verticalMatch = this.checkVerticalMatches();
@@ -83,6 +84,7 @@ class OnlineCluster extends EventEmitter {
     // socket catch socket.on()
     window.socket.on("turnChange", (data) => {
       console.log({ data });
+      this.setBoardPlayer(data.mark);
       this.cells.forEach((cell) => {
         cell.setCurrentPlayer(data.mark, data.socketId,);
       });
@@ -90,8 +92,8 @@ class OnlineCluster extends EventEmitter {
   }
 
   // this will be tough
-  setBoardPlayer(player) {
-    if (player == "x") {
+  setBoardPlayer(mark) {
+    if (mark == "x") {
       this.clusterBoard.classList.remove(
         "tictactoe-board__cluster--circle-is-visible"
       );

@@ -2,6 +2,9 @@ const path = require("path");
 const express = require("express");
 const socketIO = require('socket.io');
 
+const utils = require('./utils.js');
+const GameStateServer = require('./GameStateServer.js');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -19,6 +22,8 @@ const server = app.listen(PORT, () => {
 });
 
 const io = socketIO(server);
+// let sockets = [];
+let rooms = [{player1: null, player2: null}];
 
 io.on('connection', (socket) => {
     console.log('Client connected', socket.id);
@@ -27,6 +32,22 @@ io.on('connection', (socket) => {
     socket.on('boardClicked', function(data) {
         console.log(data);
         io.sockets.emit('boardClicked', data);
+    })
+
+    socket.on('playerJoined', function() {
+        if(rooms[0].player1 == null) {
+            rooms[0].player1 = socket;
+            console.log("Player1 filled");
+        } else if (rooms[0].player2 == null) {
+            rooms[0].player2 = socket;
+            console.log("Player2 filled");
+        }
+        if(rooms[0].player1 && rooms[0].player2) {
+            io.sockets.emit("roomReady", {mark: 'x', socketId: rooms[0].player1.id});
+            new GameStateServer(rooms[0]);
+            console.log("Room ready emitted");
+            rooms[0] = [];
+        }
     })
 
     // broadcast tic tac toe hover
