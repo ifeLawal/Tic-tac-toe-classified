@@ -1,0 +1,53 @@
+body{
+    margin: 0;
+    padding: 0;
+  }
+  
+  .loading-screen {
+    display: flex;
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0,0,0,.2);
+    z-index: -1;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  
+  .loading-screen__dots {
+    font-size: 5rem;
+    line-height: 0;
+  }
+  
+  .loading-screen__dots span:nth-child(1) {
+    animation: disappearFirst1sec 1s linear infinite;
+    color: red;
+  }
+  
+  .loading-screen__dots span:nth-child(2) {
+    animation: disappearSecond1sec 1s linear infinite;
+    color: red;
+  }
+  
+  
+  .loading-screen__dots span:nth-child(3) {
+    animation: disappearThird1sec 1s linear infinite;
+    color: red;
+  }
+  
+  @keyframes disappearFirst1sec {
+    0% {opacity: 100%;}
+    33%, 90% {opacity: 0%;}
+  }
+  
+  @keyframes disappearSecond1sec {
+    0% , 33% {opacity: 0%;}
+    33%, 66% {opacity: 100%;}
+    66%, 100% {opacity: 0%;}
+  }
+  
+  @keyframes disappearThird1sec {
+    0% , 60% {opacity: 0%;}
+    60%, 90% {opacity: 100%;}
+  }

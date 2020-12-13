@@ -8,6 +8,7 @@ import Routing from './modules/Routing';
 import LocalMultiplayerGameState from './modules/LocalMultiplayerGameState';
 import OnlineMultiplayerGameState from './modules/OnlineMultiplayerGameState';
 import Navigation from './modules/Navigation';
+import LoadingScreen from './modules/LoadingScreen';
 
 const gameMode = {
     onlineTwoPlayer: {
@@ -48,8 +49,10 @@ if(Route.currentLocation() == "/") {
 } else if (Route.currentLocation() == `/${gameMode.onlineTwoPlayer.encodedName}`) {
     // window.socket.emit("yes", "woah");
     console.log(window.socket);
+    let loading = new LoadingScreen();
     window.socket.emit("playerJoined");
     window.socket.on("roomReady", function(currentPlayerInfo) {
+        loading.removeHTML();
         new OnlineMultiplayerGameState(currentPlayerInfo);
     })
 } else if (Route.currentLocation() == `/${gameMode.localTwoPlayer.encodedName}`) {

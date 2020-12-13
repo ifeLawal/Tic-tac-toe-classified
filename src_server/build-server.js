@@ -35,10 +35,10 @@ io.on('connection', (socket) => {
     })
 
     socket.on('playerJoined', function() {
-        if(rooms[0].player1 == null) {
+        if(rooms[0].player1 == null && rooms[0].player1 != socket) {
             rooms[0].player1 = socket;
             console.log("Player1 filled");
-        } else if (rooms[0].player2 == null) {
+        } else if (rooms[0].player2 == null && rooms[0].player2 != socket) {
             rooms[0].player2 = socket;
             console.log("Player2 filled");
         }
@@ -58,6 +58,10 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', function() {
         console.log("Client has disconnected: " + socket.id);
-        // removePlayer(socket);
+        if(rooms[0].player1 && rooms[0].player1.id == socket.id) {
+            rooms[0].player1 = null;
+        } else if (rooms[0].player2 && rooms[0].player2.id == socket.id) {
+            rooms[0].player2 = null;
+        }
     });
 })

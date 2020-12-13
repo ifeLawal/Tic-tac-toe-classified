@@ -65,10 +65,10 @@ io.on('connection', (socket) => {
     socket.on('playerJoined', function() {
         if(rooms[0].player1 == null) {
             rooms[0].player1 = socket;
-            console.log("Player1 filled");
+            console.log("Player1 filled", socket.id);
         } else if (rooms[0].player2 == null) {
             rooms[0].player2 = socket;
-            console.log("Player2 filled");
+            console.log("Player2 filled", socket.id);
         }
         if(rooms[0].player1 && rooms[0].player2) {
             io.sockets.emit("roomReady", {mark: 'x', socketId: rooms[0].player1.id});
@@ -91,8 +91,12 @@ io.on('connection', (socket) => {
     })
 
     socket.on('disconnect', function() {
-        // console.log("Client has disconnected: " + socket.id);
-        sockets = utils.removeFromArray(sockets, socket.id);
+        console.log("Client has disconnected: " + socket.id);
+        if(rooms[0].player1 && rooms[0].player1.id == socket.id) {
+            rooms[0].player1 = null;
+        } else if (rooms[0].player2 && rooms[0].player2.id == socket.id) {
+            rooms[0].player2 = null;
+        }
         // console.log('updated after disconnection: ', sockets);
     });
 })
