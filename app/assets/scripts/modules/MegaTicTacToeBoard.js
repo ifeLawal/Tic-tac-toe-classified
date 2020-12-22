@@ -8,6 +8,10 @@ const LENGTH_OF_TIC_TAC_TOE_BOARD = 3;
 class MegaTicTacToeBoard extends EventEmitter {
   constructor() {
     super();
+    this.scoreArea = document.querySelector("#mega-tictactoe-score");
+    this.xMatches = document.querySelector("#x-matches");
+    this.oMatches = document.querySelector("#o-matches");
+
     this.board = document.querySelector(".tictactoe-board");
     this.boards = [];
 
@@ -23,22 +27,29 @@ class MegaTicTacToeBoard extends EventEmitter {
     this.boardOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8];
   }
 
+  score(xMatches, oMatches) {
+    this.xMatches.innerHTML = `x matches: ${xMatches}`;
+    this.oMatches.innerHTML = `o matches: ${oMatches}`;
+  }
+
   setupGame(boardOrder) {
+    this.scoreArea.classList.add("tictactoe-board__score-area--is-visible");
     this.createBoards();
     this.megaBoardArray = this.createTwoDBoard();
-    if(boardOrder) {
+    if (boardOrder) {
       this.boardOrder = boardOrder;
     } else {
       this.boardOrder = utils.shuffle(this.boardOrder);
     }
-    console.log({boardOrder}, {boardOrder: this.boardOrder}, {boardIndex: this.boardIndex});
+    // console.log(
+    //   { boardOrder },
+    //   { boardOrder: this.boardOrder },
+    //   { boardIndex: this.boardIndex }
+    // );
     this.currentBoard = this.boardOrder[this.boardIndex];
-    console.log({currentBoard: this.currentBoard}, {boards: this.boards});
+    // console.log({ currentBoard: this.currentBoard }, { boards: this.boards });
     this.boards[this.currentBoard].lookActive();
     this.activate();
-  }
-
-  lookActive() {
   }
 
   createTwoDBoard() {
@@ -62,13 +73,69 @@ class MegaTicTacToeBoard extends EventEmitter {
     return utils.shuffle(board_order);
   }
 
+  fillBoard(boardIndex, cellIndex, mark) {
+    let boardPosition = this.convertIndextoBoardLocation(boardIndex);
+    let cellPosition = this.convertIndextoBoardLocation(cellIndex);
+
+    boardPosition = boardPosition.map((x) => x * LENGTH_OF_TIC_TAC_TOE_BOARD);
+
+    let [row, col] = boardPosition.map((num, index) => {
+      return num + cellPosition[index];
+    });
+
+    console.log(
+      { boardIndex },
+      { cellIndex },
+      { row },
+      { col },
+      { boardPosition },
+      { cellPosition }
+    );
+    this.megaBoardArray[row][col] = mark;
+  }
+
+  convertIndextoBoardLocation(val) {
+    let boardx = 0;
+    let boardy = 0;
+
+    if (val % (LENGTH_OF_TIC_TAC_TOE_BOARD - 1) == 0) {
+      boardx = Math.floor(val / LENGTH_OF_TIC_TAC_TOE_BOARD);
+      boardy = val % LENGTH_OF_TIC_TAC_TOE_BOARD;
+    } else {
+      boardx = Math.floor(val / LENGTH_OF_TIC_TAC_TOE_BOARD);
+      boardy = val % LENGTH_OF_TIC_TAC_TOE_BOARD;
+    }
+
+    return [boardx, boardy];
+  }
+
+  // transform the 2D javascript array representation of the board
+  // into the single array index UI system
+  convertBoardToClusterandIndex(xPos, yPos) {
+    let boardIndex = 0;
+    let cellIndex = 0;
+
+    boardIndex =
+      Math.floor(xPos / LENGTH_OF_TIC_TAC_TOE_BOARD) *
+        LENGTH_OF_TIC_TAC_TOE_BOARD +
+      Math.floor(yPos / LENGTH_OF_TIC_TAC_TOE_BOARD);
+    cellIndex =
+      (xPos % LENGTH_OF_TIC_TAC_TOE_BOARD) * 3 +
+      (yPos % LENGTH_OF_TIC_TAC_TOE_BOARD);
+
+    return [boardIndex, cellIndex];
+  }
+
   activate() {
     this.boards[this.currentBoard].activate();
 
     this.boards.forEach((board, index) => {
       board.on("validMove", ($event) => {
         if (this.checkIfMoveIsValid(index)) {
-          this.emit("validMove", { cellIndex: $event.cellIndex });
+          this.emit("validMove", {
+            boardIndex: this.currentBoard,
+            cellIndex: $event.cellIndex,
+          });
         } else {
           // invalid move
         }
@@ -76,7 +143,7 @@ class MegaTicTacToeBoard extends EventEmitter {
 
       board.on("hover", ($event) => {
         if (this.checkIfMoveIsValid(index)) {
-          this.emit("hover", {cellIndex: $event.cellIndex});
+          this.emit("hover", { cellIndex: $event.cellIndex });
         }
       });
 
@@ -87,11 +154,10 @@ class MegaTicTacToeBoard extends EventEmitter {
 
     this.on("makeMove", ($event) => {
       this.makeMove($event.cellIndex, $event.mark);
+      this.fillBoard($event.boardIndex, $event.cellIndex, $event.mark);
 
       if (this.checkForWin() == true) {
         this.emit("gameWon", { mark: $event.mark });
-      } else if (this.checkIfBoardIsFull()) {
-        this.emit("boardIsFull", { mark: "" });
       } else {
         this.emit("changeTurn");
       }
@@ -99,14 +165,14 @@ class MegaTicTacToeBoard extends EventEmitter {
 
     this.on("validHover", ($event) => {
       this.boards[this.currentBoard].setBoardHover($event.mark);
-      if($event.cellIndex) {
+      if ($event.cellIndex) {
         this.boards[this.currentBoard].cells[$event.cellIndex].hoverCell();
       }
     });
 
     this.on("validRemoveHover", ($event) => {
       this.boards[this.currentBoard].cells[$event.cellIndex].removeHoverCell();
-    })
+    });
   }
 
   setBoardHover(mark) {
@@ -128,8 +194,6 @@ class MegaTicTacToeBoard extends EventEmitter {
     });
   }
 
-
-
   // Front end actions
   destroyBoard() {
     while (this.board.firstChild) {
@@ -140,19 +204,20 @@ class MegaTicTacToeBoard extends EventEmitter {
   colorMatch() {
     let matches = this.matches;
     // console.log({ matches });
+    this.repaint();
     for (let marker in matches) {
       //   console.log(marker);
       let matchesArr = matches[marker];
       for (let i = 0; i < matchesArr.length; i++) {
         for (let j = 0; j < matchesArr[i].length; j++) {
+          let boardIndex = matchesArr[i][j].boardIndex;
+          let cellIndex = matchesArr[i][j].cellIndex;
+          console.log(matchesArr[i][j]);
           if (marker == "x") {
-            let cellIndex = matchesArr[i][j];
-            // console.log({ cellIndex }, `cell ${this.cells[cellIndex]}`);
-            this.cells[cellIndex].colorCell("red");
+            this.boards[boardIndex].cells[cellIndex].colorCell("red");
           } else {
-            let cellIndex = matchesArr[i][j];
             // console.log({ cellIndex }, `cell ${this.cells[cellIndex]}`);
-            this.cells[cellIndex].colorCell("red");
+            this.boards[boardIndex].cells[cellIndex].colorCell("blue");
           }
         }
       }
@@ -186,26 +251,48 @@ class MegaTicTacToeBoard extends EventEmitter {
   }
 
   checkForWin() {
-    let win =
-      this.checkDiagonalMatches() ||
-      this.checkHorizontalMatches() ||
-      this.checkVerticalMatches();
+    let diagonalMatches = this.checkDiagonalMatches();
+    let horizontalMatches = this.checkHorizontalMatches();
+    let verticalMatches = this.checkVerticalMatches();
+
+    console.log(
+      { diagonalMatches },
+      { horizontalMatches },
+      { verticalMatches }
+    );
+
+    this.matches["x"] = []
+      .concat(diagonalMatches["x"])
+      .concat(horizontalMatches["x"])
+      .concat(verticalMatches["x"]);
+    this.matches["o"] = []
+      .concat(diagonalMatches["o"])
+      .concat(horizontalMatches["o"])
+      .concat(verticalMatches["o"]);
+
+    this.score(this.matches["x"].length, this.matches["o"].length);
 
     this.colorMatch();
-    return win;
+
+    if (this.checkIfBoardIsFull()) {
+      return true;
+    }
+    return false;
   }
 
   checkDiagonalMatches() {
-    let xMatchesInARow = 0;
-    let oMatchesInARow = 0;
     let matches = {
       o: [],
       x: [],
     };
 
+    /* 
+      positive slope 
+    */
     // sample 2 dimensional indices this covers
     // 2,0; 1,1; 0,2
     // 3,0; 2,1; 1,2; 0,3
+    // 8,0; 7,1; ... 1,7; 0,8;
     // to automate this you subtract along the x-axis in the outer loop and start y
     // at 0, incrementing it until it reaches the x value while subtracting it's
     // value from x to get the appropriate x value
@@ -215,6 +302,7 @@ class MegaTicTacToeBoard extends EventEmitter {
 
     let matchesInARow = 1; // since the item matches with itself, we start with 1
     let matchesXAndYPos;
+    let boardIndex, cellIndex;
 
     for (
       let x = LENGTH_OF_TIC_TAC_TOE_BOARD - 1;
@@ -224,7 +312,11 @@ class MegaTicTacToeBoard extends EventEmitter {
       for (let y = 0; y < x; y++) {
         // if this is the first check, set the starting match as itself
         if (matchesInARow == 1) {
-          matchesXAndYPos = [{ xPos: x - y, yPos: y }];
+          [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(
+            x - y,
+            y
+          );
+          matchesXAndYPos = [{ boardIndex, cellIndex }];
         }
         if (
           this.megaBoardArray[x - y][y] ==
@@ -232,38 +324,29 @@ class MegaTicTacToeBoard extends EventEmitter {
           this.megaBoardArray[x - y][y] != ""
         ) {
           matchesInARow++;
-          matchesXAndYPos.push({ xPos: x - y - 1, yPos: y + 1 });
-        } else if (matchesInARow >= 3) {
+          [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(
+            x - y - 1,
+            y + 1
+          );
+          matchesXAndYPos.push({ boardIndex, cellIndex });
+        } else {
+          matchesInARow = 1;
+        }
+        if (matchesInARow == 3) {
           // if you reach the end and have 3 or more matches
           // or you found 3 or more matches in the middle
           // give credit for those matches to a player
           if (this.megaBoardArray[x - y][y] == "x") {
-            xMatchesInARow += Math.floor(matchesInARow / 3);
-            matches["x"].push(matchesXAndYPos);
+            matches["x"].push([].concat(matchesXAndYPos));
           } else {
-            oMatchesInARow += Math.floor(matchesInARow / 3);
-            matches["o"].push(matchesXAndYPos);
+            matches["o"].push([].concat(matchesXAndYPos));
           }
 
           // dividing the matchesInARow by 3 and adding the floored/int
           // value gives us 1 point for everything in the 3-5 range and 2
           // points for matches in the 6-8 range and 3 points for 9
           // matches
-          matchesInARow = 1;
-        } else {
-          matchesInARow = 1;
-        }
-        // if we have reached the end of the diagonal
-        // and have a match of 3 or more
-        // give credit to whoever has the matches and reset the count
-        if (y + 1 >= x && matchesInARow >= 3) {
-          if (this.megaBoardArray[x - y][y] == "x") {
-            xMatchesInARow += Math.floor(matchesInARow / 3);
-            matches["x"].push(matchesXAndYPos);
-          } else {
-            oMatchesInARow += Math.floor(matchesInARow / 3);
-            matches["o"].push(matchesXAndYPos);
-          }
+          x++;
           matchesInARow = 1;
           matchesXAndYPos = [];
         }
@@ -275,6 +358,7 @@ class MegaTicTacToeBoard extends EventEmitter {
     // sample 2 dimensional indices this covers
     // 8,1; 7,2; 6,3 ... 2,7; 1,8
     // 8,2; 7,3 ... 3,7; 2,8
+    // 6,8; 7,7; 8,6;
     // to automate this you subtract along the x-axis in the outer loop and start y
     // at 1, incrementing it until it reaches the x value while subtracting it's
     // value from x to get the appropriate x value
@@ -288,7 +372,7 @@ class MegaTicTacToeBoard extends EventEmitter {
 
     for (
       let y = 1;
-      y < LENGTH_OF_MEGA_TIC_TAC_TOE_BOARD - LENGTH_OF_TIC_TAC_TOE_BOARD;
+      y <= LENGTH_OF_MEGA_TIC_TAC_TOE_BOARD - LENGTH_OF_TIC_TAC_TOE_BOARD;
       y++
     ) {
       for (
@@ -297,7 +381,11 @@ class MegaTicTacToeBoard extends EventEmitter {
         x--, i++
       ) {
         if (matchesInARow == 1) {
-          matchesXAndYPos = [{ xPos: x, yPos: y + i }];
+          [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(
+            x,
+            y + i
+          );
+          matchesXAndYPos = [{ boardIndex, cellIndex }];
         }
         if (
           this.megaBoardArray[x][y + i] ==
@@ -305,32 +393,25 @@ class MegaTicTacToeBoard extends EventEmitter {
           this.megaBoardArray[x][y + i] != ""
         ) {
           matchesInARow++;
-          matchesXAndYPos.push({ xPos: x - 1, yPos: y + i + 1 });
-        } else if (matchesInARow >= 3) {
+          [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(
+            x - 1,
+            y + i + 1
+          );
+          matchesXAndYPos.push({ boardIndex, cellIndex });
+        } else {
+          matchesInARow = 1;
+        }
+        if (matchesInARow == 3) {
           if (this.megaBoardArray[x][y + i] == "x") {
-            xMatchesInARow += Math.floor(matchesInARow / 3);
-            matches["x"].push(matchesXAndYPos);
+            matches["x"].push([].concat(matchesXAndYPos));
           } else {
-            oMatchesInARow += Math.floor(matchesInARow / 3);
-            matches["x"].push(matchesXAndYPos);
+            matches["o"].push([].concat(matchesXAndYPos));
           }
           // dividing the matchesInARow by 3 and adding the floored/int
           // value gives us 1 point for everything in the 3-5 range and 2
           // points for matches in the 6-8 range and 3 points for 9
           // matches
-          matchesInARow = 1;
-        } else {
-          matchesInARow = 1;
-        }
-
-        if (x - 1 <= y && matchesInARow >= 3) {
-          if (this.megaBoardArray[x][y + i] == "x") {
-            xMatchesInARow += Math.floor(matchesInARow / 3);
-            matches["x"].push(matchesXAndYPos);
-          } else {
-            oMatchesInARow += Math.floor(matchesInARow / 3);
-            matches["x"].push(matchesXAndYPos);
-          }
+          x--, i++;
           matchesInARow = 1;
           matchesXAndYPos = [];
         }
@@ -339,137 +420,230 @@ class MegaTicTacToeBoard extends EventEmitter {
       matchesXAndYPos = [];
     }
 
-    return false;
+    /* 
+      negative slope 
+    */
+
+    // 2 dimensional indices this covers
+    // 0,6; 1,7; 2,8
+    // 0,5; 1,6; 2,7; 3,8;
+    // 0,0; 1,1; 2,2; ... 7,7; 8,8;
+    // logic behind these 2 for loops to evaluate matches in those indices:
+    // outer loop starts at y of 6 decreases towards 0
+    // inner loop always starts x at 0 and ends at the edge and keeps pushing
+    // down 1 as it's limit, y, reduces by 1
+
+    for (
+      let y = LENGTH_OF_MEGA_TIC_TAC_TOE_BOARD - LENGTH_OF_TIC_TAC_TOE_BOARD;
+      y >= 0;
+      y--
+    ) {
+      // x = 2
+      for (let x = 0; x < LENGTH_OF_MEGA_TIC_TAC_TOE_BOARD - y - 1; x++) {
+        if (matchesInARow == 1) {
+          [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(
+            x,
+            y + x
+          );
+          matchesXAndYPos = [{ boardIndex, cellIndex }];
+        }
+        if (
+          this.megaBoardArray[x][y + x] ==
+            this.megaBoardArray[x + 1][y + x + 1] &&
+          this.megaBoardArray[x][y + x] != ""
+        ) {
+          matchesInARow++;
+          [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(
+            x + 1,
+            y + x + 1
+          );
+          matchesXAndYPos.push({ boardIndex, cellIndex });
+        } else {
+          matchesInARow = 1;
+        }
+        if (matchesInARow == 3) {
+          if (this.megaBoardArray[x][y + x] == "x") {
+            matches["x"].push([].concat(matchesXAndYPos));
+          } else {
+            matches["o"].push([].concat(matchesXAndYPos));
+          }
+
+          x++;
+          matchesInARow = 1;
+          matchesXAndYPos = [];
+        }
+      }
+      matchesInARow = 1;
+      matchesXAndYPos = [];
+    }
+
+    // sample 2 dimensional indices this covers
+    // 1,0; 2,1; 3,2 ... 6,5; 7,6; 8,7
+    // 2,0; 3,1; ... 7,5; 8,6
+    // 6,0; 7,1; 8,2; || 5,0; 6,1; 7,2; 8,3;
+    // what's the logic behind these 2 for loops to evaluate matches in those indices?:
+    // the outer loop starts at x of 1 and increases towards 6
+    // the inner loop always starts at 0 and ends at the edge and keeps pushing
+    // 1 more in as the x increases, as we go down, by a factor of 1
+    // since we evaluate against the next cell
+    // we want the limit to go to the value before the next cell therefore y + 1
+    for (
+      let x = 1;
+      x <= LENGTH_OF_MEGA_TIC_TAC_TOE_BOARD - LENGTH_OF_TIC_TAC_TOE_BOARD;
+      x++
+    ) {
+      for (let y = 0; y < LENGTH_OF_MEGA_TIC_TAC_TOE_BOARD - x - 1; y++) {
+        if (matchesInARow == 1) {
+          [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(
+            x + y,
+            y
+          );
+          matchesXAndYPos = [{ boardIndex, cellIndex }];
+        }
+        if (
+          this.megaBoardArray[x + y][y] ==
+            this.megaBoardArray[x + y + 1][y + 1] &&
+          this.megaBoardArray[x + y][y] != ""
+        ) {
+          matchesInARow++;
+          [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(
+            x + y + 1,
+            y + 1
+          );
+          matchesXAndYPos.push({ boardIndex, cellIndex });
+        } else {
+          matchesInARow = 1;
+        }
+        if (matchesInARow == 3) {
+          if (this.megaBoardArray[x + y][y] == "x") {
+            matches["x"].push([].concat(matchesXAndYPos));
+          } else {
+            matches["o"].push([].concat(matchesXAndYPos));
+          }
+
+          y++;
+          matchesInARow = 1;
+          matchesXAndYPos = [];
+        }
+      }
+      matchesInARow = 1;
+      matchesXAndYPos = [];
+    }
+
+    return matches;
   }
 
   checkVerticalMatches() {
-    let xMatchesInARow = 0;
-    let oMatchesInARow = 0;
-
     let matches = {
       o: [],
-      x: []
-    }
+      x: [],
+    };
 
     let matchesInARow = 1; // since the item matches with itself, we start with 1
     let matchesXAndYPos;
+    let boardIndex, cellIndex;
 
     // vertical win
     for (let y = 0; y < this.megaBoardArray[0].length; y++) {
-        for (let x = 0; x < this.megaBoardArray.length-1; x++) {
-            if(matchesInARow == 1) {
-                matchesXAndYPos = [
-                    {xPos:x,yPos:y}
-                ];
-            }
-            if (this.megaBoardArray[x][y] == this.megaBoardArray[x+1][y] && this.megaBoardArray[x][y] != '') {
-                matchesInARow++;
-                matchesXAndYPos.push({xPos:x+1,yPos:y});
-            } else if(matchesInARow >= 3) {
-                // if you reach the end and have 3 or more matches
-                // or you found 3 or more matches in the middle
-                // give credit for those matches to a player
-                if(this.megaBoardArray[x][y] == 'x') {
-                    xMatchesInARow += Math.floor(matchesInARow/3);
-                    matches["x"].push(matchesXAndYPos);
-                } 
-                else {
-                    oMatchesInARow += Math.floor(matchesInARow/3);
-                    matches["x"].push(matchesXAndYPos);
-                }
-                // dividing the matchesInARow by 3 and adding the floored/int
-                // values gives us 1 point for everything in the 3-5 range and 2
-                // points for matches in the 6-8 range and 3 points for 9
-                // matches
-                matchesInARow = 1;
-            } else {
-                matchesInARow = 1;
-            }
-
-            if(x+1 == this.megaBoardArray.length-1 && matchesInARow >= 3) {
-                if(this.megaBoardArray[x][y] == 'x') {
-                    xMatchesInARow += Math.floor(matchesInARow/3);
-                    matches["x"].push(matchesXAndYPos);
-                } 
-                else {
-                    oMatchesInARow += Math.floor(matchesInARow/3);
-                    matches["x"].push(matchesXAndYPos);
-                }
-                // dividing the matchesInARow by 3 and adding the floored/int
-                // values gives us 1 point for everything in the 3-5 range and 2
-                // points for matches in the 6-8 range and 3 points for 9
-                // matches
-                matchesInARow = 1;
-                matchesXAndYPos = [];
-            }
+      for (let x = 0; x < this.megaBoardArray.length - 1; x++) {
+        if (matchesInARow == 1) {
+          [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(x, y);
+          matchesXAndYPos = [{ boardIndex, cellIndex }];
         }
-        matchesInARow = 1;
-        matchesXAndYPos = [];
+        if (
+          this.megaBoardArray[x][y] == this.megaBoardArray[x + 1][y] &&
+          this.megaBoardArray[x][y] != ""
+        ) {
+          [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(
+            x + 1,
+            y
+          );
+          matchesInARow++;
+          matchesXAndYPos.push({ boardIndex, cellIndex });
+        } else {
+          matchesInARow = 1;
+        }
+
+        if (matchesInARow == 3) {
+          if (this.megaBoardArray[x][y] == "x") {
+            console.log("We made it", { matchesXAndYPos });
+            matches["x"].push([].concat(matchesXAndYPos));
+          } else {
+            matches["o"].push([].concat(matchesXAndYPos));
+          }
+
+          x++;
+          matchesInARow = 1;
+          matchesXAndYPos = [];
+        }
+      }
+      matchesInARow = 1;
+      matchesXAndYPos = [];
     }
-    return [xMatchesInARow, oMatchesInARow];
+    return matches;
   }
 
   checkHorizontalMatches() {
-    let matchesInARow = 1;
-    let xMatchesInARow = 0;
-    let oMatchesInARow = 0;
-    
     let matches = {
       o: [],
-      x: []
-    }
+      x: [],
+    };
+
+    let matchesInARow = 1; // since the item matches with itself, we start with 1
+    let matchesXAndYPos;
+    let boardIndex, cellIndex;
 
     // horizontal win
-    for(let x = 0; x < this.megaBoardArray.length; x++) {
-        for (let y = 0; y < this.megaBoardArray[x].length-1; y++) {
-            if(matchesInARow==1) {
-                matchesXAndYPos = [
-                    {xPos:x,yPos:y}
-                ];
-            }
-            if (this.megaBoardArray[x][y] == this.megaBoardArray[x][y+1] && this.megaBoardArray[x][y] != '') {
-                matchesInARow++;
-                matchesXAndYPos.push({xPos:x,yPos:y+1});
-            } 
-            else if(matchesInARow >= 3) {
-                if(this.megaBoardArray[x][y] == 'x') {
-                    xMatchesInARow+= Math.floor(matchesInARow/3);
-                    matches["x"].push(matchesXAndYPos);
-                }
-                else {
-                    oMatchesInARow+= Math.floor(matchesInARow/3);
-                    matches["x"].push(matchesXAndYPos);
-                } 
-                // dividing the matchesInARow by 3 and adding the floored/int
-                // values gives us 1 point for everything in the 3-5 range and 2
-                // points for matches in the 6-8 range and 3 points for 9
-                // matches
-                matchesInARow = 1;
-            } else {
-                matchesInARow = 1;
-            }
-
-            if(y+1 == this.megaBoardArray[x].length-1 && matchesInARow >=3) {
-                if(this.megaBoardArray[x][y] == 'x') {
-                    xMatchesInARow += Math.floor(matchesInARow/3);
-                    matches["x"].push(matchesXAndYPos);
-                }
-                else {
-                    oMatchesInARow += Math.floor(matchesInARow/3);
-                    matches["x"].push(matchesXAndYPos);
-                } 
-                // dividing the matchesInARow by 3 and adding the floored/int
-                // values gives us 1 point for everything in the 3-5 range and 2
-                // points for matches in the 6-8 range and 3 points for 9
-                // matches
-                matchesInARow = 1;
-                matchesXAndYPos = [];
-            }
+    for (let x = 0; x < this.megaBoardArray.length; x++) {
+      for (let y = 0; y < this.megaBoardArray[x].length - 1; y++) {
+        // first match is valid
+        if (matchesInARow == 1) {
+          [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(x, y);
+          matchesXAndYPos = [{ boardIndex, cellIndex }];
         }
-        matchesInARow = 1;
-        matchesXAndYPos = [];
+        // if the next mark matches our current mark, but is colored don't reset or add
+        if (
+          this.megaBoardArray[x][y] == this.megaBoardArray[x][y + 1] &&
+          this.megaBoardArray[x][y] != ""
+        ) {
+          [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(
+            x,
+            y + 1
+          );
+          matchesInARow++;
+          matchesXAndYPos.push({ boardIndex, cellIndex });
+        } else {
+          matchesInARow = 1;
+        }
+        if (matchesInARow == 3) {
+          if (this.megaBoardArray[x][y] == "x") {
+            matches["x"].push([].concat(matchesXAndYPos));
+          } else {
+            matches["o"].push([].concat(matchesXAndYPos));
+          }
+          // dividing the matchesInARow by 3 and adding the floored/int
+          // values gives us 1 point for everything in the 3-5 range and 2
+          // points for matches in the 6-8 range and 3 points for 9
+          // matches
+          y++;
+          matchesInARow = 1;
+          matchesXAndYPos = [];
+        }
+      }
+      matchesInARow = 1;
+      matchesXAndYPos = [];
     }
-    return [xMatchesInARow, oMatchesInARow];
+    return matches;
+  }
+
+  repaint() {
+    //
+    for (let x = 0; x < this.megaBoardArray.length; x++) {
+      for (let y = 0; y < this.megaBoardArray[x].length - 1; y++) {
+        let [boardIndex, cellIndex] = this.convertBoardToClusterandIndex(x, y);
+        this.boards[boardIndex].cells[cellIndex].colorCell("white");
+      }
+    }
   }
 }
 

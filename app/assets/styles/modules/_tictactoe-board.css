@@ -115,6 +115,18 @@
             background-color: white;
         }
     }
+
+    &__score-area {
+        display: none;
+
+        &--is-visible {
+            display: flex;
+            max-width: 640px;
+            margin: 0 auto;
+            justify-content: space-around;
+            margin-bottom: 1rem;
+        }
+    }
 }
 
 /* X mark hover styling */

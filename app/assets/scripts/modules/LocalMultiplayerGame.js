@@ -23,6 +23,7 @@ class LocalMultiplayerGame extends GameState {
     this.ticTacToeBoard.on("validMove", ($event) => {
       
       this.ticTacToeBoard.emit("makeMove", {
+        boardIndex: $event.boardIndex,
         cellIndex: $event.cellIndex,
         mark: this.currentPlayer.mark,
       });
@@ -45,15 +46,12 @@ class LocalMultiplayerGame extends GameState {
       this.runGameIsOver(finalWinner);
     });
     this.ticTacToeBoard.on("changeTurn", () => {
-      console.log("turn change");
-      console.log(this.currentPlayer, this.playerIndex, this.players.length);
+      // console.log("turn change");
+      // console.log(this.currentPlayer, this.playerIndex, this.players.length);
       this.playerIndex = (this.playerIndex + 1) % this.players.length;
       this.currentPlayer = this.players[this.playerIndex];
-      console.log(this.currentPlayer, this.playerIndex);
+      // console.log(this.currentPlayer, this.playerIndex);
       // this.changeTurns();
-    });
-    this.ticTacToeBoard.on("test", () => {
-      console.log("Are we running twice");
     });
   }
 

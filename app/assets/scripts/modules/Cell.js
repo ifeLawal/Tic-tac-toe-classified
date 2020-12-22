@@ -5,6 +5,7 @@ class Cell extends EventEmitter {
         super();
         this.cell = this.createCell();
         this.events();
+        this.isMatched = false;
     }
 
     events() {
@@ -56,9 +57,13 @@ class Cell extends EventEmitter {
     colorCell(color) {
         if(color == "red") {
             this.cell.classList.add("tictactoe-board__cell--red");
-        } else {
+        } else if (color == "blue") {
             this.cell.classList.add("tictactoe-board__cell--blue");
+        } else {
+            this.cell.classList.remove("tictactoe-board__cell--blue");
+            this.cell.classList.remove("tictactoe-board__cell--red");
         }
+        this.isMatched = true;
     }
 
     hoverCell() {
@@ -71,6 +76,10 @@ class Cell extends EventEmitter {
 
     getCell() {
         return this.cell;
+    }
+
+    getIsMatched() {
+        return this.isMatched;
     }
 }
 

@@ -54,11 +54,14 @@ class OnlineMultiplayerGame extends GameState {
     }
     this.ticTacToeBoard.on("validMove", ($event) => {
       if (this.checkValidMove()) {
+        console.log({currentPlayer: this.currentPlayer});
         window.socket.emit("makeMove", {
+          boardIndex: $event.boardIndex,
           cellIndex: $event.cellIndex,
           mark: this.currentPlayer.mark,
         });
         this.ticTacToeBoard.emit("makeMove", {
+          boardIndex: $event.boardIndex,
           cellIndex: $event.cellIndex,
           mark: this.currentPlayer.mark,
         });
@@ -101,6 +104,7 @@ class OnlineMultiplayerGame extends GameState {
     window.socket.on("reconcileMove", (data) => {
       // console.count();
       this.ticTacToeBoard.emit("makeMove", {
+        boardIndex: data.boardIndex,
         cellIndex: data.cellIndex,
         mark: data.mark,
       });
