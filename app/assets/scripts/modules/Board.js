@@ -71,7 +71,6 @@ class Board extends EventEmitter {
         // this.makeMove($event.index, $event.mark);
       } else {
         this.emit("changeTurn");
-        this.emit("test");
       }
     });
 

@@ -14,8 +14,12 @@ class LocalMultiplayerGame extends GameState {
   }
 
   runGame() {
-    this.ticTacToeBoard.lookActive();
-    this.ticTacToeBoard.activate();
+    if(this.boardType == "Mega") {
+      this.ticTacToeBoard.setupGame();
+    } else {
+      this.ticTacToeBoard.lookActive();
+      this.ticTacToeBoard.activate();
+    }
     this.ticTacToeBoard.on("validMove", ($event) => {
       
       this.ticTacToeBoard.emit("makeMove", {
@@ -25,10 +29,7 @@ class LocalMultiplayerGame extends GameState {
     });
     this.ticTacToeBoard.on("hover", ($event) => {
       this.ticTacToeBoard.setBoardHover(this.currentPlayer.mark);
-      // this.ticTacToeBoard.emit("validHover", {
-      //   cellIndex: $event.cellIndex,
-      //   mark: this.currentPlayer.mark,
-      // });
+
     });
     let gameOver = false;
     let finalWinner = "";

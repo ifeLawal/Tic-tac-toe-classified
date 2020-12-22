@@ -1,11 +1,15 @@
+const utils = require('./utils.js');
+
 class OnlineGameStateServer {
     constructor(sockets, roomName) {
         this.roomName = roomName;
         this.sockets = sockets;
-        console.log(sockets);
+        this.megaBoardOrder = utils.shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+
         this.listenForGameStart(sockets);
         this.listenForTurnChange(sockets);
         this.listenForHover(sockets);
+        this.listenForMegaSetup(sockets);
     }
 
     listenForGameStart({player1, player2}) {
@@ -24,15 +28,26 @@ class OnlineGameStateServer {
             player2.to(this.roomName).emit('startGame', data);
         })
     }
+    listenForMegaSetup({player1, player2}) {
+
+        player1.on('megaSetup', () => {
+            // player1.to(this.roomName).emit('setupReady', boardOrder);
+            player2.to(this.roomName).emit('setupReady', this.megaBoardOrder);
+        })
+        player2.on('megaSetup', (data) => {
+            player1.to(this.roomName).emit('setupReady', this.megaBoardOrder);
+            // player2.to(this.roomName).emit('setupReady', boardOrder);
+        })
+    }
 
     listenForHover({player1, player2}) {
         player1.on("removeHover", (data) => {
-            player2.emit('validRemoveHover', data);
-            player1.emit('validRemoveHover', data);
+            player2.to(this.roomName).emit('validRemoveHover', data);
+            player1.to(this.roomName).emit('validRemoveHover', data);
         })
         player2.on("removeHover", (data) => {
-            player2.emit('validRemoveHover', data);
-            player1.emit('validRemoveHover', data);
+            player2.to(this.roomName).emit('validRemoveHover', data);
+            player1.to(this.roomName).emit('validRemoveHover', data);
         })
 
         player1.on('validHover', (data) => {

@@ -1,4 +1,5 @@
 import GameState from "./GameState";
+import utils from './utils';
 
 class OnlineMultiplayerGame extends GameState {
   constructor(players) {
@@ -28,11 +29,29 @@ class OnlineMultiplayerGame extends GameState {
     window.socket.on("startGame", (data) => {
       this.startGame();
     });
+
+    this.once("megaSetup", () => {
+      console.log("setup happening");
+      // let boardOrder = utils.shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+      // this.ticTacToeBoard.setupGame(boardOrder);
+      window.socket.emit("megaSetup");
+    })
+
+    window.socket.on("setupReady", (data) => {
+      console.log(data);
+      this.ticTacToeBoard.setupGame(data);
+    })
   }
 
   runGame() {
-    this.ticTacToeBoard.lookActive();
-    this.ticTacToeBoard.activate();
+    if(this.boardType == "Mega") {
+      // if(window.socket.id == this.currentPlayer.socketId) {
+        this.emit("megaSetup");
+      // }
+    } else {
+      this.ticTacToeBoard.lookActive();
+      this.ticTacToeBoard.activate();
+    }
     this.ticTacToeBoard.on("validMove", ($event) => {
       if (this.checkValidMove()) {
         window.socket.emit("makeMove", {
