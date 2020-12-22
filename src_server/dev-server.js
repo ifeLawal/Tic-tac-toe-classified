@@ -52,37 +52,27 @@ const server = app.listen(PORT, () => {
 const io = socketIO(server);
 let sockets = [];
 let rooms = [{player1: null, player2: null}];
+let roomName = "testRoom";
 
 io.on('connection', (socket) => {
-    // console.log('Client connected', socket.id);
-    // sockets.push(socket.id);
-    // console.log('updated after connection: ', sockets);
-
-    // socket.on("yes", function() {
-    //     console.log("yes");
-    // })
 
     socket.on('playerJoined', function() {
         if(rooms[0].player1 == null) {
             rooms[0].player1 = socket;
+            socket.join(roomName);
             console.log("Player1 filled", socket.id);
         } else if (rooms[0].player2 == null) {
             rooms[0].player2 = socket;
+            socket.join(roomName);
             console.log("Player2 filled", socket.id);
         }
         if(rooms[0].player1 && rooms[0].player2) {
-            io.sockets.emit("roomReady", {mark: 'x', socketId: rooms[0].player1.id});
-            new GameStateServer(rooms[0]);
+            io.sockets.emit("roomReady", [{name: 'player1', mark: 'x', socketId: rooms[0].player1.id},{name: 'player2', mark: 'o', socketId: rooms[0].player2.id}]);
+            new GameStateServer(rooms[0], roomName);
             console.log("Room ready emitted");
             rooms[0] = [];
         }
     })
-
-    // Handle tic tac toe cell click
-    // socket.on('boardClicked', function(data) {
-    //     console.log(data);
-    //     io.sockets.emit('boardClicked', data);
-    // })
 
     // broadcast tic tac toe hover
     socket.on('hover', function(data) {
@@ -94,8 +84,10 @@ io.on('connection', (socket) => {
         console.log("Client has disconnected: " + socket.id);
         if(rooms[0].player1 && rooms[0].player1.id == socket.id) {
             rooms[0].player1 = null;
+            rooms[0].player1.leave(roomName);
         } else if (rooms[0].player2 && rooms[0].player2.id == socket.id) {
             rooms[0].player2 = null;
+            rooms[0].player2.leave(roomName);
         }
         // console.log('updated after disconnection: ', sockets);
     });

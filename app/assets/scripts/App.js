@@ -5,8 +5,8 @@ window.socket = io();
 // console.log(window.socket);
 
 import Routing from './modules/Routing';
-import LocalMultiplayerGameState from './modules/LocalMultiplayerGameState';
-import OnlineMultiplayerGameState from './modules/OnlineMultiplayerGameState';
+import LocalMultiplayerGame from './modules/LocalMultiplayerGame';
+import OnlineMultiplayerGame from './modules/OnlineMultiplayerGame';
 import Navigation from './modules/Navigation';
 import LoadingScreen from './modules/LoadingScreen';
 
@@ -51,12 +51,13 @@ if(Route.currentLocation() == "/") {
     console.log(window.socket);
     let loading = new LoadingScreen();
     window.socket.emit("playerJoined");
-    window.socket.on("roomReady", function(currentPlayerInfo) {
+    window.socket.on("roomReady", function(players) {
         loading.removeHTML();
-        new OnlineMultiplayerGameState(currentPlayerInfo);
+        console.log(players);
+        new OnlineMultiplayerGame(players);
     })
 } else if (Route.currentLocation() == `/${gameMode.localTwoPlayer.encodedName}`) {
-    new LocalMultiplayerGameState().initializeGame();
+    new LocalMultiplayerGame();
 } else if (Route.currentLocation() == `/404`) {
     headerMessage.innerHTML = "Welcome to failure land! 🙃";
     gameSpace.insertAdjacentElement('afterbegin', headerMessage);

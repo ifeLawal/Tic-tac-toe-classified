@@ -18,8 +18,11 @@
         grid-template-columns: repeat(3, auto);
 
         &--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before,
+        &--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle).hover::before,
         &--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before,
-        &--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after {
+        &--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after,
+        &--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle).hover::before,
+        &--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle).hover::after {
             background-color: lightgrey;
         }
 
@@ -117,37 +120,46 @@
 /* X mark hover styling */
 
 .tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before, 
-.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after {
+.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after,
+.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle).hover::before,
+.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle).hover::after {
     content: '';
     position: absolute;
     width: calc(($markSize) * .15);
     height: $markSize;
 }
 
-.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before {
+.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before,
+.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle).hover::before {
     transform: rotate(45deg);
 }
 
-.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after {
+.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after,
+.tictactoe-board__cluster--x-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle).hover::after {
     transform: rotate(-45deg);
 }
 
 /*  Circle mark hover styling */
 
 .tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before,
-.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after {
+.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after, 
+.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle).hover::before,
+.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle).hover::after{
     content: '';
     position: absolute;
     border-radius: 50%;
 }
 
-.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after {
+.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::after, 
+.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle).hover::after 
+{
     height: calc($markSize *.55);
     width: calc($markSize *.55);
     background-color: white;
 }
 
-.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before {
+.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle):hover::before,
+.tictactoe-board__cluster--circle-is-visible .tictactoe-board__cell:not(.tictactoe-board__cell--x):not(.tictactoe-board__cell--circle).hover::before {
     height: calc($markSize *.85);
     width: calc($markSize *.85);
 }

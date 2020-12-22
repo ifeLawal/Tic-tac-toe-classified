@@ -21,12 +21,12 @@
         transform: scale(1);
     }
 
-    &__winner-text {
+    &__winner-text, &__button-holder {
         margin: 10px 0px;
         display: none;
 
         &--is-visible {
             display: block;
         }
-    }
+    } 
 }

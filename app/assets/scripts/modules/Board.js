@@ -1,29 +1,32 @@
-import Cell from "./Cell";
 import EventEmitter from "events";
+import Cell from "./Cell";
 
-let socket = io();
-const LENGTH_OF_MEGA_TIC_TAC_TOE_BOARD = 9;
 const LENGTH_OF_TIC_TAC_TOE_BOARD = 3;
 
-class Cluster extends EventEmitter {
-  constructor(currentPlayer) {
+class Board extends EventEmitter {
+  constructor() {
     super();
-    this.cells = [];
-    // TODO configure this to interplay with the right person
-    this.currentPlayer = currentPlayer;
-    this.winner;
+    this.board = document.querySelector(".tictactoe-board");
     this.boardArray = [
       ["", "", ""],
       ["", "", ""],
       ["", "", ""],
     ];
+    this.cells = [];
+    this.ticTacToeBoard = this.createBoard();
+
+    this.winner;
+
     this.matches = {
       x: [],
       o: [],
     };
-    this.clusterBoard = this.createBoard();
-    this.setBoardPlayer(currentPlayer);
-    this.setupBoardInteraction();
+
+    this.injectHTML();
+  }
+
+  injectHTML() {
+    this.board.appendChild(this.ticTacToeBoard);
   }
 
   createBoard() {
@@ -31,7 +34,7 @@ class Cluster extends EventEmitter {
     div.classList.add("tictactoe-board__cluster");
     div.setAttribute("data-cluster", "");
     for (let i = 0; i < 9; i++) {
-      let newCell = new Cell(this.currentPlayer);
+      let newCell = new Cell();
       div.appendChild(newCell.getCell());
       this.cells.push(newCell);
     }
@@ -39,111 +42,80 @@ class Cluster extends EventEmitter {
     return div;
   }
 
-  setupBoardInteraction() {
-    this.cells.map((cell, index) => {
-
-      cell.on("boardClicked", () => {
-
-        window.socket.emit("boardClicked", {
-          index: index
-        });
-
-        this.fillBoard(index);
-        let horizontalMatch = this.checkHorizontalMatches();
-        let verticalMatch = this.checkVerticalMatches();
-        let diagonalMatch = this.checkDiagonalMatches();
-        // console.log(`Horizontal matches: ${horizontalMatch}}`);
-        // console.log(`Vertical matches: ${verticalMatch}`);
-        // console.log(`Diagonal matches: ${diagonalMatch}`);
-        this.colorMatch();
-        if (horizontalMatch || verticalMatch || diagonalMatch) {
-          console.log(`emitting the winner ${this.winner}`);
-          this.emit("gameFinished");
+  activate() {
+    this.cells.forEach((cell, index) => {
+      cell.on("click", () => {
+        
+        if (this.checkIfMoveIsValid(index)) {
+          this.emit("validMove", { cellIndex: index });
         } else {
-          this.emit("clusterboardClicked");
-
-          this.cells.forEach((cell) => {
-            if (this.currentPlayer == "x") {
-              cell.setMarker("x");
-            } else {
-              cell.setMarker("o");
-            }
-          });
+          // invalid move, signal the player with a front end reaction
         }
+      });
+      cell.on("hover", () => {
+        this.emit("hover", { cellIndex: index });
+      });
+      cell.on("removeHover", () => {
+        this.emit("removeHover", { cellIndex: index });
       });
     });
 
-    // socket catch socket.on()
-    window.socket.on('boardClicked', (data) => {
-      console.log(this.cells[data.index].fillCell());
-    });
-  }
-
-  setBoardPlayer(player) {
-    if (player == "x") {
-      this.clusterBoard.classList.remove(
-        "tictactoe-board__cluster--circle-is-visible"
-      );
-      this.clusterBoard.classList.add("tictactoe-board__cluster--x-is-visible");
-    } else {
-      this.clusterBoard.classList.add(
-        "tictactoe-board__cluster--circle-is-visible"
-      );
-      this.clusterBoard.classList.remove(
-        "tictactoe-board__cluster--x-is-visible"
-      );
-    }
-  }
-
-  setCurrentPlayer(player) {
-    this.currentPlayer = player;
-  }
-
-  getClusterBoard() {
-    return this.clusterBoard;
-  }
-
-  colorMatch() {
-    let matches = this.matches;
-    // console.log({ matches });
-    for (let marker in matches) {
-    //   console.log(marker);
-      let matchesArr = matches[marker];
-      for (let i = 0; i < matchesArr.length; i++) {
-        for (let j = 0; j < matchesArr[i].length; j++) {
-          if (marker == "x") {
-            let cellIndex = matchesArr[i][j];
-            // console.log({ cellIndex }, `cell ${this.cells[cellIndex]}`);
-            this.cells[cellIndex]
-              .getCell()
-              .classList.add("tictactoe-board__cell--red");
-          } else {
-            let cellIndex = matchesArr[i][j];
-            // console.log({ cellIndex }, `cell ${this.cells[cellIndex]}`);
-            this.cells[cellIndex]
-              .getCell()
-              .classList.add("tictactoe-board__cell--blue");
-          }
-        }
+    this.on("makeMove", ($event) => {
+      // console.log({event: $event});
+      this.fillBoard($event.cellIndex, $event.mark);
+      this.cells[$event.cellIndex].fillCell($event.mark);
+      if(this.checkForWin() == true) {
+        this.emit("gameWon", {mark: $event.mark});
+      } else if (this.checkIfBoardIsFull()) {
+        this.emit("boardIsFull", {mark: ""});
+        // this.makeMove($event.index, $event.mark);
+      } else {
+        this.emit("changeTurn");
+        this.emit("test");
       }
-    }
-    /* for(let i = 0; i < this.matches.length; i++) {
-            let marker = ;
-            for(let j = 0; j < this.matches[i].length; j++) {
-                if(marker == 'x') {
-                    let cellIndex = matches[i][j];
-                    console.log({cellIndex}, `cell ${this.cells[cellIndex]}`);
-                    this.cells[cellIndex].getCell().classList.add("tictactoe-board__cell--red");
-                } else {
-                    let cellIndex = matches[i][j];
-                    console.log({cellIndex}, `cell ${this.cells[cellIndex]}`);
-                    this.cells[cellIndex].getCell().classList.add("tictactoe-board__cell--blue");
-                }
-            }
-        }*/
+    });
+
+    this.on("validHover", ($event) => {
+      this.setBoardHover($event.mark);
+      if($event.cellIndex) {
+        this.cells[$event.cellIndex].hoverCell()
+      }
+    });
+
+    this.on("validRemoveHover", ($event) => {
+      this.cells[$event.cellIndex].removeHoverCell();
+    })
   }
 
-  // check for matches
+  setBoardHover(mark) {
+    if (mark == "x") {
+      this.board.classList.remove(
+        "tictactoe-board__cluster--circle-is-visible"
+      );
+      this.board.classList.add("tictactoe-board__cluster--x-is-visible");
+    } else {
+      this.board.classList.add("tictactoe-board__cluster--circle-is-visible");
+      this.board.classList.remove("tictactoe-board__cluster--x-is-visible");
+    }
+  }
+
+  lookActive() {
+    this.ticTacToeBoard.classList.add("tictactoe-board__cluster--is-active");
+  }
+
+  lookInactive() {
+    this.ticTacToeBoard.classList.remove("tictactoe-board__cluster--is-active");
+    this.ticTacToeBoard.classList.remove("tictactoe-board__cluster--circle-is-visible");
+    this.ticTacToeBoard.classList.remove("tictactoe-board__cluster--x-is-visible");
+  }
+
+  checkForWin() {
+    let win = this.checkDiagonalMatches() || this.checkHorizontalMatches() || this.checkVerticalMatches(); 
+
+    this.colorMatch();
+    return win;
+  }
+
   // diagonal matches
   checkDiagonalMatches() {
     let foundBackSlashMatch = true;
@@ -176,24 +148,16 @@ class Cluster extends EventEmitter {
         forwardSlashMatchIndices.push(cellIndex);
       }
     }
-    // console.log(
-    //   `length forward slash matches ${forwardSlashMatchIndices.length}`
-    // );
-    // console.log(`length back slash matches ${backSlashMatchIndices.length}`);
 
     if (forwardSlashMatchIndices.length == 3) {
-      // it might make more sense to have a set winner function
-      this.winner = diagonalForwardSlashMark;
       this.matches[diagonalForwardSlashMark].push(forwardSlashMatchIndices);
     }
     if (backSlashMatchIndices.length == 3) {
-      // it might make more sense to have a set winner function
-      this.winner = diagonalBackSlashMark;
       this.matches[diagonalBackSlashMark].push(backSlashMatchIndices);
     }
 
     return foundBackSlashMatch || foundForwardSlashMatch;
-  }
+  };
 
   // vertical matches
   checkVerticalMatches() {
@@ -214,15 +178,13 @@ class Cluster extends EventEmitter {
         matchIndices.push(this.convertBoardLocationToIndex(row, col));
       }
       if (foundMatch == true) {
-        // it might make more sense to have a set winner function
-        this.winner = firstMark;
         this.matches[firstMark].push(matchIndices);
         return foundMatch;
       }
     }
 
     return foundMatch;
-  }
+  };
 
   // horizontal matches
   checkHorizontalMatches() {
@@ -243,16 +205,13 @@ class Cluster extends EventEmitter {
         matchIndices.push(this.convertBoardLocationToIndex(row, col));
       }
       if (foundMatch == true) {
-        // it might make more sense to have a set winner function
-        this.winner = firstMark;
         this.matches[firstMark].push(matchIndices);
         return foundMatch;
       }
     }
 
     return foundMatch;
-  }
-
+  };
   // convert single cell array value to
   convertIndexToBoardLocation(val) {
     let boardx = 0;
@@ -283,15 +242,72 @@ class Cluster extends EventEmitter {
     return cellIndex;
   }
 
-  fillBoard(cellIndex) {
-    let [boardRow, boardCol] = this.convertIndexToBoardLocation(cellIndex);
-    this.boardArray[boardRow][boardCol] = this.currentPlayer;
-    // console.log(this.boardArray);
+  makeMove(cellIndex, mark) {
+    this.fillBoard(cellIndex, mark);
+    this.cells[cellIndex].fillCell(mark);
   }
 
-  getWinner() {
-    return this.winner;
+  fillBoard(cellIndex, mark) {
+    let [boardRow, boardCol] = this.convertIndexToBoardLocation(cellIndex);
+    // console.log(this.boardArray[boardRow, boardCol], boardRow, boardCol, mark, cellIndex);
+    this.boardArray[boardRow][boardCol] = mark;
+  }
+
+  // Front end actions
+  destroyBoard() {
+    console.log(this.board);
+    while (this.board.firstChild) {
+      this.board.removeChild(this.board.lastChild);
+    }
+    
+    this.boardArray = [];
+    this.cells = [];
+    console.log(this.board);
+  }
+
+  colorMatch() {
+    let matches = this.matches;
+    // console.log({ matches });
+    for (let marker in matches) {
+      //   console.log(marker);
+      let matchesArr = matches[marker];
+      for (let i = 0; i < matchesArr.length; i++) {
+        for (let j = 0; j < matchesArr[i].length; j++) {
+          if (marker == "x") {
+            let cellIndex = matchesArr[i][j];
+            // console.log({ cellIndex }, `cell ${this.cells[cellIndex]}`);
+            this.cells[cellIndex].colorCell("red");
+          } else {
+            let cellIndex = matchesArr[i][j];
+            // console.log({ cellIndex }, `cell ${this.cells[cellIndex]}`);
+            this.cells[cellIndex].colorCell("red");
+          }
+        }
+      }
+    }
+  }
+
+  topMark() {
+    let topMark;
+    let maxMatches = 0;
+    for (let mark in this.matches) {
+      if (this.matches[mark].length > maxMatches) {
+        maxMatches = this.matches[mark].length;
+        topMark = mark;
+      }
+    }
+
+    return topMark;
+  }
+
+  checkIfMoveIsValid(cellIndex) {
+    let [row, col] = this.convertIndexToBoardLocation(cellIndex);
+    return this.boardArray[row][col] == "";
+  }
+
+  checkIfBoardIsFull() {
+    return this.boardArray.every((board) => board.every((cell) => cell != ""));
   }
 }
 
-export default Cluster;
+export default Board;
