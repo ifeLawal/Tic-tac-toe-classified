@@ -44,3 +44,6 @@ dwsync.xml
 # for build
 target
 build
+
+# not needed for project
+cloud-functions/
