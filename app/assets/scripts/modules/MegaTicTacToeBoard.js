@@ -157,7 +157,7 @@ class MegaTicTacToeBoard extends EventEmitter {
       this.fillBoard($event.boardIndex, $event.cellIndex, $event.mark);
 
       if (this.checkForWin() == true) {
-        this.emit("gameWon", { mark: $event.mark });
+        this.emit("gameWon", { mark: this.topMark() });
       } else {
         this.emit("changeTurn");
       }
