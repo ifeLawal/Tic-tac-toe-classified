@@ -2,7 +2,7 @@
 
 This uses express, websockets, webpack, and a few other tools to build a two player tic tac toe game.
 # Game Types
-* Single Player Against Non Player Character (In Progress)
+* Single Player Against Non Player Character (Incomplete)
 * Local Multiplayer (Tic Tac Toe and Mega Tic Tac Toe)
 * Online Multiplayer (Tic Tac Toe and Mega Tic Tac Toe)
 ## Rules for Tic Tac Toe
@@ -19,23 +19,27 @@ conversion functions transforming from JS 2D array to the 1D array representatio
 
 ![9 tic tac toe boards stack 3 from left to right and 3 top to bottom. A showing how the boards are clustered](https://raw.githubusercontent.com/ifeLawal/Tic-tac-toe-classified/main/readme-images/Tic_Tac_Board_01.png)
 
-![9 tic tac toe boards stack 3 from left to right and 3 top to bottom. A showing of each cell index](https://drive.google.com/uc?id=1hZDlNCO-34Tgez7dIPzXrCopSFVpZ5EK) 
+![9 tic tac toe boards stack 3 from left to right and 3 top to bottom. A showing of each cell index](https://raw.githubusercontent.com/ifeLawal/Tic-tac-toe-classified/main/readme-images/Tic_Tac_Board_02.png) 
 
 **diagonalMatching()**
 checking for the positive slope direction of diagonal matches
 
-![9 tic tac toe boards stack 3 from left to right and 3 top to bottom. A showing of diagonal negtive slope matching](https://drive.google.com/uc?id=1ZvoZHWI8Kq2qfFh2MRDqhzRmgdiehXWg) 
+![9 tic tac toe boards stack 3 from left to right and 3 top to bottom. A showing of diagonal negtive slope matching](https://raw.githubusercontent.com/ifeLawal/Tic-tac-toe-classified/main/readme-images/Tic_Tac_Board_03.png) 
 
 checking for the negative slope direction of diagonal matches
 
-![9 tic tac toe boards stack 3 from left to right and 3 top to bottom. A showing of diagonal negtive slope matching](https://drive.google.com/uc?id=1JWvtDPvkoJxemBJmDCqPu2ZbE7JodNXL)
+![9 tic tac toe boards stack 3 from left to right and 3 top to bottom. A showing of diagonal negtive slope matching](https://raw.githubusercontent.com/ifeLawal/Tic-tac-toe-classified/main/readme-images/Tic_Tac_Board_04.png)
 
 **verticalMatching()**
 checking for vertical matches
 
-![9 tic tac toe boards stack 3 from left to right and 3 top to bottom. A showing of vertical matching.](https://drive.google.com/uc?id=1iAID27eTHHvtqqmRrNu5BcFvxCCjS8Z3) 
+![9 tic tac toe boards stack 3 from left to right and 3 top to bottom. A showing of vertical matching.](https://raw.githubusercontent.com/ifeLawal/Tic-tac-toe-classified/main/readme-images/Tic_Tac_Board_05.png) 
 
 **horizontalMatching()**
 checking for horizontal matches
 
-![9 tic tac toe boards stack 3 from left to right and 3 top to bottom. A showing of horizontal matching.](https://drive.google.com/uc?id=1HWgjS8JIZquvhD5ReDaIp_Up8bhXNRGY)
+![9 tic tac toe boards stack 3 from left to right and 3 top to bottom. A showing of horizontal matching.](https://raw.githubusercontent.com/ifeLawal/Tic-tac-toe-classified/main/readme-images/Tic_Tac_Board_06.png)
+
+# To Do
+* Fix memory leaks that occur if you reload the webpage and start a new game
+* Add more websockets for the online tic tac toe games
