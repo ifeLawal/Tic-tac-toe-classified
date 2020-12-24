@@ -79,10 +79,10 @@ io.on('connection', (socket) => {
     socket.on('disconnect', function() {
         console.log("Client has disconnected: " + socket.id);
         if(rooms[0].player1 && rooms[0].player1.id == socket.id) {
-            rooms[0].player1.leave(roomName);
+            rooms[0].player1.leave(roomNames[index]);
             rooms[0].player1 = null;
         } else if (rooms[0].player2 && rooms[0].player2.id == socket.id) {
-            rooms[0].player2.leave(roomName);
+            rooms[0].player2.leave(roomNames[index]);
             rooms[0].player2 = null;
         }
         // console.log('updated after disconnection: ', sockets);
