@@ -2,7 +2,6 @@ const path = require("path");
 const express = require("express");
 const socketIO = require('socket.io');
 
-const utils = require('./utils.js');
 const GameStateServer = require('./GameStateServer.js');
 
 const webpack = require('webpack');
@@ -50,34 +49,31 @@ const server = app.listen(PORT, () => {
 });
 
 const io = socketIO(server);
-let sockets = [];
 let rooms = [{player1: null, player2: null}];
-let roomName = "testRoom";
+let roomNames = ["Room1", "Room2", "Room3", "Room4", "Room5", "Room6", "Room7", "Room8", "Room9", "Room10"];
+let index = 0;
+
 
 io.on('connection', (socket) => {
 
     socket.on('playerJoined', function() {
         if(rooms[0].player1 == null) {
             rooms[0].player1 = socket;
-            socket.join(roomName);
+            socket.join(roomNames[index]);
             console.log("Player1 filled", socket.id);
         } else if (rooms[0].player2 == null) {
             rooms[0].player2 = socket;
-            socket.join(roomName);
+            socket.join(roomNames[index]);
             console.log("Player2 filled", socket.id);
         }
         if(rooms[0].player1 && rooms[0].player2) {
             io.sockets.emit("roomReady", [{name: 'player1', mark: 'x', socketId: rooms[0].player1.id},{name: 'player2', mark: 'o', socketId: rooms[0].player2.id}]);
-            new GameStateServer(rooms[0], roomName);
+            new GameStateServer(rooms[0], roomNames[index]);
             console.log("Room ready emitted");
             rooms[0] = [];
+            index = index + 1 % roomNames.length;
         }
-    })
-
-    // broadcast tic tac toe hover
-    socket.on('hover', function(data) {
-        // console.log(data);
-        socket.broadcast.emit('hover', data);
+        
     })
 
     socket.on('disconnect', function() {

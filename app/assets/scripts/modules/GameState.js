@@ -139,13 +139,13 @@ class GameState extends EventEmitter {
       this.playAgain.parentNode.classList.remove(
         "modal__button-holder--is-visible"
       );
+      this.ticTacToeBoard.destroyBoard();
+      // utils.destroy(this.ticTacToeBoard);
       this.winningMessage.classList.remove("modal__winner-text--is-visible");
       this.restartEvent();
     });
     this.winningMessage.classList.add("modal__winner-text--is-visible");
     this.winningMessage.innerHTML = `The winner is ${winner}`;
-    this.ticTacToeBoard.destroyBoard();
-    utils.destroy(this.ticTacToeBoard);
   }
 
   // a sleep function to simulate a delay in time
