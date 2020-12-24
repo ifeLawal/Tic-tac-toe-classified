@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
         }
         if(rooms[0].player1 && rooms[0].player2) {
             io.sockets.emit("roomReady", [{name: 'player1', mark: 'x', socketId: rooms[0].player1.id},{name: 'player2', mark: 'o', socketId: rooms[0].player2.id}]);
-            new GameStateServer(rooms[0], roomName);
+            new GameStateServer(rooms[0], roomNames[index]);
             console.log("Room ready emitted");
             rooms[0] = [];
             index = index + 1 % roomNames.length;
